@@ -8,7 +8,9 @@ import com.example.shopping.model.ItemModel;
 import com.example.shopping.repository.ItemRepository;
 import com.example.shopping.services.IItemService;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ItemService implements IItemService {
 
     private final ItemRepository itemRepository;
