@@ -40,7 +40,7 @@ public class PlanService implements IPlanService {
 
     private final GenerateContentConfig CONFIG;
 
-    private static final String CHAT_MODEL = "gemini-3.1-flash-lite-preview";
+    private static final String CHAT_MODEL = "gemini-2.5-flash";
 
 
     public PlanService(Client geminiClient, ListRepository listRepository,
@@ -53,7 +53,7 @@ public class PlanService implements IPlanService {
     }
 
     public PlanDTO createPlan(Long listId, String zipCode) {
-        if (!zipCode.isEmpty() && !zipCode.matches("\\d{5}")) {
+        if (zipCode != null && !zipCode.isEmpty() && !zipCode.matches("\\d{5}")) {
             throw new IllegalEntityException("Invalid zip code format: " + zipCode);
         }
         try {

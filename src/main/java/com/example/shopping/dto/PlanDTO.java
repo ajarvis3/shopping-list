@@ -6,4 +6,12 @@ public class PlanDTO {
     public PlanDTO(String plan) {
         this.plan = plan;
     }
+
+    public String getPlan() {
+        return plan;
+    }
+
+    public void setPlan(String plan) {
+        this.plan = plan;
+    }
 }
