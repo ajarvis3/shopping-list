@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface IListService {
     public List<ListDTO> getAll();
     public ListDTO getById(Long id);

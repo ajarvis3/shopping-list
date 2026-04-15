@@ -9,7 +9,10 @@ import com.example.shopping.model.ListModel;
 import com.example.shopping.repository.ItemRepository;
 import com.example.shopping.repository.ListRepository;
 import com.example.shopping.services.IItemService;
+import org.modelmapper.ConfigurationException;
+import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +43,7 @@ public class ItemService implements IItemService {
             return itemMapper.map(item, ItemDTO.class);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e);
-        } catch (RuntimeException e) {
+        } catch (ConfigurationException | MappingException | OptimisticLockingFailureException e) {
             throw new EntityNotActionedException(e);
         }
     }

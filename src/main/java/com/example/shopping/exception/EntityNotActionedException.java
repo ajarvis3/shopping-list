@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class EntityNotActionedException extends RuntimeException {
     public EntityNotActionedException(){}
+    public EntityNotActionedException(String message){
+        super(message);
+    }
     public EntityNotActionedException(Exception e){
         super(e);
     }

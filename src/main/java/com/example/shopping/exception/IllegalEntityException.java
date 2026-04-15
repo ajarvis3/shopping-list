@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class IllegalEntityException extends RuntimeException {
     public IllegalEntityException(){}
+    public IllegalEntityException(String message){
+        super(message);
+    }
     public IllegalEntityException(Exception e) {
         super(e);
     }
