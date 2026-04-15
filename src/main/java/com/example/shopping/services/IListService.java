@@ -9,7 +9,8 @@ import java.util.List;
 @Service
 public interface IListService {
     public List<ListDTO> getAll();
-    public ListDTO getById(long id);
+    public ListDTO getById(Long id);
     public ListDTO createList(ListModel list);
-    public long deleteList(long id);
+    public ListDTO updateList(ListModel list, Long id);
+    public Long deleteList(Long id);
 }

@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ListRepository extends JpaRepository<ListModel, Long> {
     public List<ListModel> findByName(String name);
-    public Optional<ListModel> findById(long id);
+    public Optional<ListModel> findById(Long id);
 }

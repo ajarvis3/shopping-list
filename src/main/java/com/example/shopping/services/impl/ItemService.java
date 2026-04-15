@@ -5,26 +5,37 @@ import com.example.shopping.exception.EntityNotActionedException;
 import com.example.shopping.exception.EntityNotFoundException;
 import com.example.shopping.exception.IllegalEntityException;
 import com.example.shopping.model.ItemModel;
+import com.example.shopping.model.ListModel;
 import com.example.shopping.repository.ItemRepository;
+import com.example.shopping.repository.ListRepository;
 import com.example.shopping.services.IItemService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ItemService implements IItemService {
 
     private final ItemRepository itemRepository;
 
+    private final ListRepository listRepository;
+
     private final ModelMapper itemMapper;
 
-    public ItemService(ItemRepository itemRepository, ModelMapper itemMapper) {
+    public ItemService(ItemRepository itemRepository, ModelMapper itemMapper,  ListRepository listRepository) {
         this.itemRepository = itemRepository;
         this.itemMapper = itemMapper;
+        this.listRepository = listRepository;
     }
 
     @Override
-    public ItemDTO createItem(ItemModel item){
+    @Transactional
+    public ItemDTO createItem(ItemModel item, Long listId){
         try {
+            ListModel listModel = listRepository.findById(listId)
+                    .orElseThrow(() ->
+                            new EntityNotFoundException("List not found with id: " + listId));
+            item.setListModel(listModel);
             itemRepository.save(item);
             return itemMapper.map(item, ItemDTO.class);
         } catch (IllegalArgumentException e) {
@@ -35,14 +46,15 @@ public class ItemService implements IItemService {
     }
 
     @Override
-    public ItemDTO getItem(long id) {
+    public ItemDTO getItem(Long id) {
         return itemRepository.findById(id)
                 .map(item -> itemMapper.map(item, ItemDTO.class))
                 .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + id));
     }
 
     @Override
-    public long deleteItem(long id) {
+    @Transactional
+    public Long deleteItem(Long id) {
         try {
             itemRepository.deleteById(id);
             return id;

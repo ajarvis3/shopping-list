@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface IItemService {
-    public ItemDTO createItem(ItemModel item);
-    public ItemDTO getItem(long id);
-    public long deleteItem(long id);
+    public ItemDTO createItem(ItemModel item, Long listId);
+    public ItemDTO getItem(Long id);
+    public Long deleteItem(Long id);
 }

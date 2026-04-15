@@ -47,10 +47,10 @@ public class ListController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ListDTO> put(@RequestBody ListDTO listDTO) {
+    public ResponseEntity<ListDTO> put(@RequestBody ListDTO listDTO, @PathVariable Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(listService.createList(modelMapper.map(listDTO, ListModel.class)));
+                .body(listService.updateList(modelMapper.map(listDTO, ListModel.class), id));
     }
 
     @DeleteMapping("/{id}")

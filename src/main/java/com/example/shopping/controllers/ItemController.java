@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/items")
+@RequestMapping("/list/{listId}/items")
 public class ItemController {
 
     private ModelMapper modelMapper;
@@ -22,21 +22,21 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemDTO> getItemById(@PathVariable long id) {
+    public ResponseEntity<ItemDTO> getItemById(@PathVariable Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(itemService.getItem(id));
     }
 
     @PostMapping
-    public ResponseEntity<ItemDTO> createItem(@RequestBody ItemDTO itemDTO) {
+    public ResponseEntity<ItemDTO> createItem(@RequestBody ItemDTO itemDTO, @PathVariable Long listId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(itemService.createItem(modelMapper.map(itemDTO, ItemModel.class)));
+                .body(itemService.createItem(modelMapper.map(itemDTO, ItemModel.class), listId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Long> deleteItem(@PathVariable long id) {
+    public ResponseEntity<Long> deleteItem(@PathVariable Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(itemService.deleteItem(id));

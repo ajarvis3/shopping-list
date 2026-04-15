@@ -7,10 +7,15 @@ import com.example.shopping.exception.EntityNotFoundException;
 import com.example.shopping.model.ListModel;
 import com.example.shopping.repository.ListRepository;
 import com.example.shopping.services.IListService;
+import org.modelmapper.ConfigurationException;
+import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.lang.reflect.Type;
 import java.util.List;
 
 @Service
@@ -27,32 +32,49 @@ public class ListService implements IListService {
 
     @Override
     public List<ListDTO> getAll() {
-        List<ListDTO> listDTOList = new ArrayList<ListDTO>();
-        listMapper.map(listRepository.findAll(), listDTOList);
-        return listDTOList;
+        Type listType = new TypeToken<List<ListDTO>>() {}.getType();
+        return listMapper.map(listRepository.findAll(), listType);
     }
 
     @Override
-    public ListDTO getById(long id) {
+    public ListDTO getById(Long id) {
         return listRepository.findById(id).map(list ->
-            listMapper.map(list, ListDTO.class)
+                listMapper.map(list, ListDTO.class)
         ).orElseThrow(() -> new EntityNotFoundException("List not found with id: " + id)) ;
     }
 
     @Override
-    public ListDTO createList(ListModel list) {
+    @Transactional
+    public ListDTO updateList(ListModel list, Long id) {
         try {
-            ListModel result = listRepository.save(listMapper.map(list, ListModel.class));
-            return  listMapper.map(result, ListDTO.class);
+            ListModel listModel = listRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("List not found with id: " + id)) ;
+            listModel.setName(list.getName());
+            listModel.setOwner(list.getOwner());
+            return listMapper.map(listRepository.save(listModel),  ListDTO.class);
         } catch (IllegalArgumentException e) {
-            throw new IllegalEntityException(e);
-        } catch (RuntimeException e) {
+            throw new IllegalArgumentException(e);
+        } catch (ConfigurationException | MappingException | OptimisticLockingFailureException e) {
             throw new EntityNotActionedException(e);
         }
     }
 
     @Override
-    public long deleteList(long id) {
+    @Transactional
+    public ListDTO createList(ListModel list) {
+        try {
+            ListModel result = listRepository.save(list);
+            return  listMapper.map(result, ListDTO.class);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalEntityException(e);
+        } catch (ConfigurationException | MappingException | OptimisticLockingFailureException e) {
+            throw new EntityNotActionedException(e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Long deleteList(Long id) {
         try {
             listRepository.deleteById(id);
             return id;
