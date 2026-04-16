@@ -25,6 +25,8 @@ dependencies {
 	implementation 'org.modelmapper:modelmapper:3.2.4'
 	implementation  'com.h2database:h2'
 
+	implementation 'org.springframework.ai:spring-ai-starter-model-google-genai:1.1.4'
+
 	implementation 'com.google.genai:google-genai:1.45.0'
 	def langchain4jVersion = '0.36.0'
 	implementation "dev.langchain4j:langchain4j:${langchain4jVersion}"

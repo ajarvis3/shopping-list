@@ -19,6 +19,13 @@ import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.google.genai.GoogleGenAiChatModel;
+import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.json.JsonMapper;
@@ -30,26 +37,40 @@ public class PlanService implements IPlanService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlanService.class);
 
-    private final Client GEMINI_CLIENT;
-
     private final ModelMapper MODEL_MAPPER;
 
     private final JsonMapper JSON_MAPPER;
 
     private final ListRepository LIST_REPOSITORY;
 
-    private final GenerateContentConfig CONFIG;
+    private final ChatModel GEMINI_CHAT_MODEL;
 
-    private static final String CHAT_MODEL = "gemini-3-flash-preview";
+    private static final String PROMPT = """
+            You are a shopping assistant. The user will provide a shopping list and may include a zip code.
+            
+            The shopping list will be provided as a JSON array of objects in this exact format:
+            [
+              { "name": "Bananas", "quantity": 5 }
+            ]
+            Use only the "name" and "quantity" fields.
+            
+            Compare only these stores, in this order: Walmart, Target.
+            Attempt to look up the prices in real time.
+            If no zip code is provided, assume Atlanta, GA.
+            
+            Choose the store with the lowest total price.
+            Output the estimated price and the store name.
+            
+            If Atlanta was used as the default, add: "(Prices based on Atlanta, GA)"
+            """;
 
 
-    public PlanService(Client geminiClient, ListRepository listRepository,
-                       ModelMapper modelMapper, JsonMapper jsonMapper, GenerateContentConfig generateContentConfig) {
-        this.GEMINI_CLIENT = geminiClient;
+    public PlanService(ListRepository listRepository, ModelMapper modelMapper,
+                       JsonMapper jsonMapper, GoogleGenAiChatModel googleGenAiChatModel) {
         this.LIST_REPOSITORY = listRepository;
         this.MODEL_MAPPER = modelMapper;
         this.JSON_MAPPER = jsonMapper;
-        this.CONFIG = generateContentConfig;
+        this.GEMINI_CHAT_MODEL = googleGenAiChatModel;
     }
 
     public PlanDTO createPlan(Long listId, String zipCode) {
@@ -65,24 +86,23 @@ public class PlanService implements IPlanService {
             List<LlmItemDTO> llmItems = list.getItems().stream().map(item -> MODEL_MAPPER.map(item, LlmItemDTO.class)).toList();
             String listString = JSON_MAPPER.writeValueAsString(llmItems);
             LOG.debug("listString: {}", listString);
-            Part listContent = Part.builder()
-                    .text("List: " + listString + "\nZip code: " + zipCode)
-                    .build();
-
             LOG.debug("Sending request to Gemini with list and zip code");
+            String message = "System Prompt: " + PROMPT + "\nList: " + listString + "\nZip code: " + zipCode;
             try {
-                GenerateContentResponse response = GEMINI_CLIENT.models.generateContent(
-                        CHAT_MODEL,
-                        Content.builder()
-                                .parts(List.of(listContent))
-                                .build(),
-                        CONFIG);
+                String response = ChatClient.create(GEMINI_CHAT_MODEL)
+                        .prompt(message)
+                        .options(ToolCallingChatOptions.builder()
+                                .model("gemini-3-flash-preview")
+                                .build())
+                        .call()
+                        .content();
+
                 LOG.debug("Received response from gemini");
-                if (response == null || response.text() == null || response.text().isEmpty()) {
+                if (response == null || response.isEmpty()) {
                     throw new EntityNotActionedException("Gemini returned an empty response");
                 }
-                LOG.debug("Gemini response: {}", response.text());
-                return new PlanDTO(response.text());
+                LOG.debug("Gemini response: {}", response);
+                return new PlanDTO(response);
             } catch (ServerException e) {
                 LOG.error("Gemini server error: {}", e.getMessage(), e.getCause());
                 throw new EntityNotActionedException(e);
