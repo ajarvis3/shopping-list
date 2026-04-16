@@ -35,6 +35,7 @@ public class ItemService implements IItemService {
     @Transactional
     public ItemDTO createItem(ItemModel item, Long listId){
         try {
+            item.setId(null);
             ListModel listModel = listRepository.findById(listId)
                     .orElseThrow(() ->
                             new EntityNotFoundException("List not found with id: " + listId));
