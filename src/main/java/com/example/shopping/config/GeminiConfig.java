@@ -22,11 +22,11 @@ public class GeminiConfig {
             Use only the "name" and "quantity" fields.
             
             Compare only these stores, in this order: Walmart, Target.
+            Attempt to look up the prices in real time. If that is taking too long, use a simple estimate.
             Use simple estimated US average prices. If no zip code is provided, assume Atlanta, GA.
             
-            Choose the store with the lowest estimated total price.
-            Output only:
-            Store: <name>, Total Price: $<amount>
+            Choose the store with the lowest total price. Indicate whether it is an estimate or lookup.
+            Output the estimated price and the store name.
             
             If Atlanta was used as the default, add: "(Prices based on Atlanta, GA)"
             """;
@@ -43,7 +43,7 @@ public class GeminiConfig {
                         Content.builder()
                                 .parts(Part.builder().text(PROMPT).build())
                 )
-                .temperature(0.0f)
+                .temperature(0.2f)
                 .maxOutputTokens(128)
                 .build();
     }
