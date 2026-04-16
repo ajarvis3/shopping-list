@@ -40,7 +40,7 @@ public class PlanService implements IPlanService {
 
     private final GenerateContentConfig CONFIG;
 
-    private static final String CHAT_MODEL = "gemini-2.5-flash";
+    private static final String CHAT_MODEL = "gemini-3-flash-preview";
 
 
     public PlanService(Client geminiClient, ListRepository listRepository,
@@ -66,10 +66,7 @@ public class PlanService implements IPlanService {
             String listString = JSON_MAPPER.writeValueAsString(llmItems);
             LOG.debug("listString: {}", listString);
             Part listContent = Part.builder()
-                    .text("List: " + listString)
-                    .build();
-            Part zipCodeContent = Part.builder()
-                    .text("Zip Code: " + zipCode)
+                    .text("List: " + listString + "\nZip code: " + zipCode)
                     .build();
 
             LOG.debug("Sending request to Gemini with list and zip code");
@@ -77,7 +74,7 @@ public class PlanService implements IPlanService {
                 GenerateContentResponse response = GEMINI_CLIENT.models.generateContent(
                         CHAT_MODEL,
                         Content.builder()
-                                .parts(List.of(listContent, zipCodeContent))
+                                .parts(List.of(listContent))
                                 .build(),
                         CONFIG);
                 LOG.debug("Received response from gemini");
