@@ -1,4 +1,12 @@
-FROM eclipse-temurin:21-jre
+# ---- Build stage ----
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
-COPY build/libs/shopping-list-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+COPY . .
+RUN ./gradlew bootJar --no-daemon
+
+# ---- Runtime stage ----
+
+RUN cp /app/build/libs/*-SNAPSHOT.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
