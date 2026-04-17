@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/list/{listId}/plan")
+@RequestMapping("/api/list/{listId}/plan")
 public class PlanController {
 
     IPlanService planService;

@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"List 1\",\r\n    \"owner\": \"Andrew\"\r\n}",
+					"raw": "{\r\n    \"name\": \"List 2\",\r\n    \"owner\": \"Andrew\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -35,7 +35,16 @@
 			"name": "Get lists",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/list",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"list"
+					]
+				}
 			},
 			"response": []
 		},
@@ -94,8 +103,18 @@
 		{
 			"name": "Delete List",
 			"request": {
-				"method": "GET",
-				"header": []
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/list/1",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"list",
+						"1"
+					]
+				}
 			},
 			"response": []
 		},
@@ -104,6 +123,15 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": -1,\r\n    \"name\": \"Playstation 5\",\r\n    \"quantity\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "{{baseurl}}/list/1/items",
 					"host": [
@@ -122,7 +150,19 @@
 			"name": "Get Item",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/list/1/items/1",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"list",
+						"1",
+						"items",
+						"1"
+					]
+				}
 			},
 			"response": []
 		},
@@ -141,6 +181,50 @@
 						"1",
 						"items",
 						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Plan",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/list/1/plan?zip=30309",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"list",
+						"1",
+						"plan"
+					],
+					"query": [
+						{
+							"key": "zip",
+							"value": "30309"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Plan Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseurl}}/list/1/plan",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"list",
+						"1",
+						"plan"
 					]
 				}
 			},

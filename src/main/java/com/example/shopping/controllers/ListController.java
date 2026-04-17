@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/list")
+@RequestMapping("/api/list")
 public class ListController {
 
     private ModelMapper modelMapper;

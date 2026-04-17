@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/list/{listId}/items")
+@RequestMapping("/api/list/{listId}/items")
 public class ItemController {
 
     private ModelMapper modelMapper;
