@@ -93,6 +93,8 @@ public class PlanService implements IPlanService {
                         .prompt(message)
                         .options(ToolCallingChatOptions.builder()
                                 .model("gemini-3-flash-preview")
+                                .maxTokens(1024)
+                                .temperature(0.0)
                                 .build())
                         .call()
                         .content();

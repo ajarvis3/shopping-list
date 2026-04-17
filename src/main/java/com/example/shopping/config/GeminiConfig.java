@@ -41,7 +41,7 @@ public class GeminiConfig {
                         Content.builder()
                                 .parts(Part.builder().text(PROMPT).build())
                 )
-                .temperature(0.2f)
+                .temperature(0.0f)
                 .maxOutputTokens(1024)
                 .build();
     }
