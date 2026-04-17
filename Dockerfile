@@ -3,6 +3,9 @@ FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 COPY . .
+
+RUN chmod ugo+x ./gradlew
+
 RUN ./gradlew bootJar --no-daemon
 
 # ---- Runtime stage ----
