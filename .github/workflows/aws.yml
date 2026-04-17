@@ -94,12 +94,12 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
-        docker build -t PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build -t $PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
-        docker tag PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-           PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:latest
+        docker tag $PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+           $PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-        docker push PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:latest
-        echo "image=PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        docker push $PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:latest
+        echo "image=$PUBLIC_ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
         
