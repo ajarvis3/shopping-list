@@ -29,6 +29,26 @@ name: Deploy to Amazon ECS
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+      tags:
+        description: 'Aws Docker Build'
+        required: false
+        type: boolean
+      environment:
+        description: 'Aws Docker Build'
+        type: environment
+        required: true
+
 
 env:
   AWS_REGION: us-east-2                   # set this to your preferred AWS region, e.g. us-west-1
