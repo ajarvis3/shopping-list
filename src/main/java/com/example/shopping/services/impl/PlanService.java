@@ -8,12 +8,7 @@ import com.example.shopping.exception.EntityNotFoundException;
 import com.example.shopping.exception.IllegalEntityException;
 import com.example.shopping.repository.ListRepository;
 import com.example.shopping.services.IPlanService;
-import com.google.genai.Client;
 import com.google.genai.errors.ServerException;
-import com.google.genai.types.Content;
-import com.google.genai.types.GenerateContentConfig;
-import com.google.genai.types.GenerateContentResponse;
-import com.google.genai.types.Part;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
@@ -21,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
-import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -37,13 +29,13 @@ public class PlanService implements IPlanService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlanService.class);
 
-    private final ModelMapper MODEL_MAPPER;
+    private final ModelMapper modelMapper;
 
-    private final JsonMapper JSON_MAPPER;
+    private final JsonMapper jsonMapper;
 
-    private final ListRepository LIST_REPOSITORY;
+    private final ListRepository listRepository;
 
-    private final ChatModel GEMINI_CHAT_MODEL;
+    private final ChatModel chatModel;
 
     private static final String PROMPT = """
             You are a shopping assistant. The user will provide a shopping list and may include a zip code.
@@ -67,10 +59,10 @@ public class PlanService implements IPlanService {
 
     public PlanService(ListRepository listRepository, ModelMapper modelMapper,
                        JsonMapper jsonMapper, GoogleGenAiChatModel googleGenAiChatModel) {
-        this.LIST_REPOSITORY = listRepository;
-        this.MODEL_MAPPER = modelMapper;
-        this.JSON_MAPPER = jsonMapper;
-        this.GEMINI_CHAT_MODEL = googleGenAiChatModel;
+        this.listRepository = listRepository;
+        this.modelMapper = modelMapper;
+        this.jsonMapper = jsonMapper;
+        this.chatModel = googleGenAiChatModel;
     }
 
     public PlanDTO createPlan(Long listId, String zipCode) {
@@ -79,19 +71,19 @@ public class PlanService implements IPlanService {
             throw new IllegalEntityException("Invalid zip code format: " + zipCode);
         }
         try {
-            ListDTO list = LIST_REPOSITORY.findById(listId)
+            ListDTO list = listRepository.findById(listId)
                     .map(lst ->
-                    MODEL_MAPPER.map(lst, ListDTO.class)
+                    modelMapper.map(lst, ListDTO.class)
                     )
                     .orElseThrow(() -> new EntityNotFoundException("List not found with id: " + listId));
-            List<LlmItemDTO> llmItems = list.getItems().stream().map(item -> MODEL_MAPPER.map(item, LlmItemDTO.class)).toList();
-            String listString = JSON_MAPPER.writeValueAsString(llmItems);
+            List<LlmItemDTO> llmItems = list.getItems().stream().map(item -> modelMapper.map(item, LlmItemDTO.class)).toList();
+            String listString = jsonMapper.writeValueAsString(llmItems);
             LOG.debug("listString: {}", listString);
             LOG.debug("Sending request to Gemini with list and zip code");
             String message = "System Prompt: " + PROMPT + "\nList: " + listString + "\nZip code: " + zipCode;
             LOG.debug("message: {}", message);
             try {
-                String response = ChatClient.create(GEMINI_CHAT_MODEL)
+                String response = ChatClient.create(chatModel)
                         .prompt(message)
                         .options(ToolCallingChatOptions.builder()
                                 .model("gemini-3.1-flash-lite-preview")
