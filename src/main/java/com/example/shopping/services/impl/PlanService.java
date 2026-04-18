@@ -74,6 +74,7 @@ public class PlanService implements IPlanService {
     }
 
     public PlanDTO createPlan(Long listId, String zipCode) {
+        LOG.debug("Creating plan for listId: {} with zipCode: {}", listId, zipCode);
         if (zipCode != null && !zipCode.isEmpty() && !zipCode.matches("\\d{5}")) {
             throw new IllegalEntityException("Invalid zip code format: " + zipCode);
         }
@@ -88,11 +89,12 @@ public class PlanService implements IPlanService {
             LOG.debug("listString: {}", listString);
             LOG.debug("Sending request to Gemini with list and zip code");
             String message = "System Prompt: " + PROMPT + "\nList: " + listString + "\nZip code: " + zipCode;
+            LOG.debug("message: {}", message);
             try {
                 String response = ChatClient.create(GEMINI_CHAT_MODEL)
                         .prompt(message)
                         .options(ToolCallingChatOptions.builder()
-                                .model("gemini-3-flash-preview")
+                                .model("gemini-3.1-flash-lite-preview")
                                 .maxTokens(1024)
                                 .temperature(0.0)
                                 .build())
