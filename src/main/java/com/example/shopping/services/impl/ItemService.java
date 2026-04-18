@@ -12,12 +12,16 @@ import com.example.shopping.services.IItemService;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ItemService implements IItemService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ItemService.class);
 
     private final ItemRepository itemRepository;
 
@@ -35,6 +39,7 @@ public class ItemService implements IItemService {
     @Transactional
     public ItemDTO createItem(ItemModel item, Long listId){
         try {
+            LOG.debug("Creating Item on list {} ", listId);
             item.setId(null);
             ListModel listModel = listRepository.findById(listId)
                     .orElseThrow(() ->
@@ -51,6 +56,7 @@ public class ItemService implements IItemService {
 
     @Override
     public ItemDTO getItem(Long id) {
+        LOG.debug("Getting Items from list {} ", id);
         return itemRepository.findById(id)
                 .map(item -> itemMapper.map(item, ItemDTO.class))
                 .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + id));

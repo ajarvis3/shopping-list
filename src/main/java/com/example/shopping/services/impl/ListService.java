@@ -11,6 +11,8 @@ import org.modelmapper.ConfigurationException;
 import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,8 @@ import java.util.List;
 
 @Service
 public class ListService implements IListService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ListService.class);
 
     private final ModelMapper listMapper;
 
@@ -32,12 +36,14 @@ public class ListService implements IListService {
 
     @Override
     public List<ListDTO> getAll() {
+        LOG.debug("getAll()");
         Type listType = new TypeToken<List<ListDTO>>() {}.getType();
         return listMapper.map(listRepository.findAll(), listType);
     }
 
     @Override
     public ListDTO getById(Long id) {
+        LOG.debug("getById({})", id);
         return listRepository.findById(id).map(list ->
                 listMapper.map(list, ListDTO.class)
         ).orElseThrow(() -> new EntityNotFoundException("List not found with id: " + id)) ;
@@ -47,6 +53,7 @@ public class ListService implements IListService {
     @Transactional
     public ListDTO updateList(ListModel list, Long id) {
         try {
+            LOG.debug("updateList({}, {})", list, id);
             ListModel listModel = listRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("List not found with id: " + id)) ;
             listModel.setName(list.getName());
@@ -63,6 +70,7 @@ public class ListService implements IListService {
     @Transactional
     public ListDTO createList(ListModel list) {
         try {
+            LOG.debug("createList({})", list);
             ListModel result = listRepository.save(list);
             return  listMapper.map(result, ListDTO.class);
         } catch (IllegalArgumentException e) {
@@ -76,6 +84,7 @@ public class ListService implements IListService {
     @Transactional
     public Long deleteList(Long id) {
         try {
+            LOG.debug("deleteList({})", id);
             listRepository.deleteById(id);
             return id;
         } catch (IllegalArgumentException e) {
