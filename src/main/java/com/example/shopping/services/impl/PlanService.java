@@ -88,7 +88,7 @@ public class PlanService implements IPlanService {
             LOG.debug("Sending request to Gemini with list and zip code");
             String message = "System Prompt: " + PROMPT + "\nList: " + listString + "\nZip code: " + zipCode;
             // not currently used
-            Message userPrompt = new UserMessage("List: \" + listString + \"\\nZip code: \" " + zipCode);
+            Message userPrompt = new UserMessage("List: " + listString + "\\nZip code:" + zipCode);
             // improved prompt; separates user and system prompts.
             Prompt prompt = Prompt.builder()
                     .messages(SYSTEM_PROMPT, userPrompt)
@@ -96,7 +96,7 @@ public class PlanService implements IPlanService {
             LOG.debug("message: {}", message);
             try {
                 String response = ChatClient.create(chatModel)
-                        .prompt(message)
+                        .prompt(prompt)
                         .options(ToolCallingChatOptions.builder()
                                 .model("gemini-3.1-flash-lite-preview")
                                 .maxTokens(1024)
