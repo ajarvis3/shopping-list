@@ -15,7 +15,11 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -56,6 +60,8 @@ public class PlanService implements IPlanService {
             If Atlanta was used as the default, add: "(Prices based on Atlanta, GA)"
             """;
 
+    private static final Message SYSTEM_PROMPT = new SystemMessage(PROMPT);
+
 
     public PlanService(ListRepository listRepository, ModelMapper modelMapper,
                        JsonMapper jsonMapper, GoogleGenAiChatModel googleGenAiChatModel) {
@@ -81,6 +87,12 @@ public class PlanService implements IPlanService {
             LOG.debug("listString: {}", listString);
             LOG.debug("Sending request to Gemini with list and zip code");
             String message = "System Prompt: " + PROMPT + "\nList: " + listString + "\nZip code: " + zipCode;
+            // not currently used
+            Message userPrompt = new UserMessage("List: \" + listString + \"\\nZip code: \" " + zipCode);
+            // improved prompt; separates user and system prompts.
+            Prompt prompt = Prompt.builder()
+                    .messages(SYSTEM_PROMPT, userPrompt)
+                    .build();
             LOG.debug("message: {}", message);
             try {
                 String response = ChatClient.create(chatModel)
