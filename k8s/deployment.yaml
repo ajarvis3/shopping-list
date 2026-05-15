@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-list
+  labels:
+    app: shopping-list
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopping-list
+  template:
+    metadata:
+      labels:
+        app: shopping-list
+    spec:
+      containers:
+        - name: shopping-list
+          image: ghcr.io/your-org/shopping-list:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
